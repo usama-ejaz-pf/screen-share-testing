@@ -10,14 +10,14 @@ const PORT = process.env.PORT || 8080
 
 // Set OPENTOK_API_KEY from environment variable
 // Exit with error if the environment variable is not specified.
-const OPENTOK_API_KEY = "46512252"
+const OPENTOK_API_KEY = '46512252'
 if (!OPENTOK_API_KEY) {
   throw new Error('Provide OPENTOK_API_KEY environment variable')
 }
 
 // Set OPENTOK_API_SECRET from environment variable
 // Exit with error if the environment variable is not specified.
-const OPENTOK_API_SECRET = "3e89085b1df4fd346feb81dc67fd72c6cd044122"
+const OPENTOK_API_SECRET = '3e89085b1df4fd346feb81dc67fd72c6cd044122'
 if (!OPENTOK_API_SECRET) {
   throw new Error('Provide OPENTOK_API_SECRET environment variable')
 }
@@ -108,7 +108,7 @@ function Caller (sessionId, token) {
   // Time when the call started
   this.onCallSince = null
   // Whether caller is ready. This is set to true only after caller has successfully connected to OpenTok.
-  this.ready = true
+  this.ready = false
   // Name for this caller.
   this.callerName = null
   // Reason for call
@@ -226,7 +226,7 @@ Agent.prototype.assignPending = function (limit = 1) {
  * @param {Caller} c - Instance of `Caller` to assign to.
  */
 Agent.prototype.assignCaller = function (c) {
-  console.log("I am agent")
+  console.log('I am agent')
   c.assignedAgent = this.agentid
   this.currentCallers.set(c.callerId, c)
 }
@@ -291,7 +291,7 @@ function sortAgentsByCallerCount () {
  * @return {Promise} - Resolves to assigned agent's ID or `null` if no agent is available.
  */
 async function assignCaller (caller) {
-  console.log("I am simple")
+  console.log('I am simple')
   if (agents.size) {
     let agent = sortAgentsByCallerCount()[0]
     agent.assignCaller(caller)
