@@ -25,30 +25,44 @@
           </ul>
           <span v-if="caller.agentConnected" class="uk-card-badge uk-label uk-label-success">Live</span>
           <span v-if="caller.onHold" class="uk-card-badge uk-label uk-label-warning">On Hold</span>
-          <button
-            @click="joinCall(caller.callerId)"
-            v-if="!caller.agentConnected && !caller.onHold"
-            class="uk-button uk-button-primary">Accept</button>
-          <button
-            @click="shareScreen(caller.callerId)"
-            v-if="caller.agentConnected && !caller.onHold && !screenShare"
-            class="uk-button uk-button-primary">Share Screen</button>
-          <button
-            @click="stopShareScreen(caller.callerId)"
-            v-if="caller.agentConnected && !caller.onHold && screenShare"
-            class="uk-button uk-button-primary">Stop Sharing Screen</button>
-          <button
-            @click="unholdCall(caller.callerId)"
-            v-else-if="caller.onHold"
-            class="uk-button uk-button-default">Resume</button>
-          <button
-            @click="holdCall(caller.callerId)"
-            v-else-if="caller.agentConnected && !caller.onHold"
-            class="uk-button uk-button-primary">Hold</button>
-          <button
-            @click="endCall(caller.callerId)"
-            v-if="caller.agentConnected && !caller.onHold"
-            class="uk-button uk-button-danger">End Call</button>
+          <span v-if="videoPaused" class="uk-card-badge uk-label uk-label-success">Video Paused</span>
+          <div class="uk-button-group">
+            <button
+              @click="shareScreen(caller.callerId)"
+              v-if="caller.agentConnected && !caller.onHold && !screenShare && !videoPaused"
+              class="uk-button-small uk-button-primary">Share Screen</button>
+            <button
+              @click="stopShareScreen(caller.callerId)"
+              v-if="caller.agentConnected && !caller.onHold && screenShare && !videoPaused"
+              class="uk-button-small uk-button-primary">Stop Sharing Screen</button>
+            <button
+              @click="pauseVideo(caller.callerId)"
+              v-if="caller.agentConnected && !caller.onHold && !videoPaused"
+              class="uk-button-small uk-button-danger">Pause Video</button>
+            <button
+              @click="resumeVideo(caller.callerId)"
+              v-if="caller.agentConnected && !caller.onHold && videoPaused"
+              class="uk-button-small uk-button-primary">Resume Video</button>
+          </div>
+          <hr>
+          <div class="uk-button-group">
+            <button
+              @click="joinCall(caller.callerId)"
+              v-if="!caller.agentConnected && !caller.onHold"
+              class="uk-button-small uk-button-primary">Accept</button>
+            <button
+              @click="unholdCall(caller.callerId)"
+              v-else-if="caller.onHold"
+              class="uk-button-small uk-button-default">Resume</button>
+            <button
+              @click="holdCall(caller.callerId)"
+              v-else-if="caller.agentConnected && !caller.onHold"
+              class="uk-button-small uk-button-primary">Hold</button>
+            <button
+              @click="endCall(caller.callerId)"
+              v-if="caller.agentConnected && !caller.onHold"
+              class="uk-button-small uk-button-danger">End Call</button>
+          </div>
         </div>
       </div>
     </div>
@@ -118,6 +132,14 @@ function setupSession(callerId) {
 
 function successHandler(msg) {
   UIkit.notification(msg, 'success')
+}
+
+function pauseVideo(callerId){
+    this.videoPaused = true;
+}
+
+function resumeVideo(callerId) {
+    this.videoPaused = false;
 }
 
 function joinCall(callerId) {
@@ -273,6 +295,7 @@ export default {
     callerSession: null,
     callerStream: null,
     audioVideo: 'audioVideo',
+    videoPaused: false,
     otOpts: {
       insertMode: 'append',
       width: '100%',
@@ -293,14 +316,16 @@ export default {
       if (this.audioVideo === 'audioOnly') {
           _opts.videoSource = null
       }
-      if(this.screenShare){
+      if(this.screenShare && this.audioVideo !== 'audioOnly'){
 
          _opts.videoSource = 'screen';
          _opts.maxResolution = { width: 1920, height: 1080 };
 
       }
-      console.log("in agent");
-      console.log(_opts);
+      if (this.videoPaused && this.audioVideo !== 'audioOnly'){
+          _opts.videoSource = null
+      }
+
       return _opts
     }
   },
@@ -332,7 +357,9 @@ export default {
     disconnectAgent,
     endCall,
     shareScreen,
-    stopShareScreen
+    stopShareScreen,
+    pauseVideo,
+    resumeVideo
   }
 }
 

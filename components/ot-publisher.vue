@@ -26,6 +26,7 @@ export default {
   },
 
   mounted: function() {
+
     this.publisher = OT.initPublisher(this.$el, this.opts, (err) => {
       if (err) {
         this.$emit('error', err);
@@ -33,27 +34,12 @@ export default {
         this.$emit('publisherCompleted');
       }
     });
-    console.log("In mounted");
-    console.log(this.publisher);
-    this.$emit('publisherCreated', this.publisher);
-    const publish = () => {
-      this.session.publish(this.publisher, (err) => {
-        if (err) {
-          this.$emit('error', err);
-        } else {
-          this.$emit('publisherConnected', this.publisher);
-        }
-      });
-    };
-    if (this.session && this.session.isConnected()) {
-      publish()
-    }
-    if (this.session) {
-      this.session.on('sessionConnected', publish)
-    }
+
+    this.publishSession();
+
   },
 
-    watch: {
+  watch: {
     // whenever options changes, this function will run
     opts: function () {
         this.session.unpublish(this.publisher);
@@ -77,24 +63,11 @@ export default {
                     }
                 });
 
-              this.$emit('publisherCreated', this.publisher);
-              const publish = () => {
-                  this.session.publish(this.publisher, (err) => {
-                      if (err) {
-                          this.$emit('error', err);
-                      } else {
-                          this.$emit('publisherConnected', this.publisher);
-                      }
-                  });
-              };
-              if (this.session && this.session.isConnected()) {
-                  publish()
-              }
-              if (this.session) {
-                  this.session.on('sessionConnected', publish)
-              }
+                this.publishSession();
+
             });
         }else {
+
             this.publisher = OT.initPublisher(this.$el, this.opts, (err) => {
                 if (err) {
                     this.$emit('error', err);
@@ -103,24 +76,30 @@ export default {
                 }
             });
 
-            this.$emit('publisherCreated', this.publisher);
-            const publish = () => {
-                this.session.publish(this.publisher, (err) => {
-                    if (err) {
-                        this.$emit('error', err);
-                    } else {
-                        this.$emit('publisherConnected', this.publisher);
-                    }
-                });
-            };
-            if (this.session && this.session.isConnected()) {
-                publish()
-            }
-            if (this.session) {
-                this.session.on('sessionConnected', publish)
-            }
+            this.publishSession();
         }
     }
   },
+
+  methods:{
+      publishSession(){
+          this.$emit('publisherCreated', this.publisher);
+          const publish = () => {
+              this.session.publish(this.publisher, (err) => {
+                  if (err) {
+                      this.$emit('error', err);
+                  } else {
+                      this.$emit('publisherConnected', this.publisher);
+                  }
+              });
+          };
+          if (this.session && this.session.isConnected()) {
+              publish()
+          }
+          if (this.session) {
+              this.session.on('sessionConnected', publish)
+          }
+      }
+  }
 }
 </script>
